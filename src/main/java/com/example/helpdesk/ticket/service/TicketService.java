@@ -11,13 +11,19 @@ import com.example.helpdesk.exception.TicketNotFoundException;
 
 import java.util.List;
 
+import com.example.helpdesk.category.model.Category;
+import com.example.helpdesk.category.service.CategoryService;
+
 @Service
 public class TicketService {
 
     private final TicketRepository ticketRepository;
 
-    public TicketService(TicketRepository ticketRepository) {
+    private final CategoryService categoryService;
+
+    public TicketService(TicketRepository ticketRepository, CategoryService categoryService) {
         this.ticketRepository = ticketRepository;
+        this.categoryService = categoryService;
     }
 
     public List<TicketResponse> getAllTickets() {
@@ -33,8 +39,11 @@ public class TicketService {
     }
 
     public TicketResponse createTicket(TicketRequest request) {
+        Category category = categoryService.findCategoryById(request.getCategoryId());
+
         Ticket ticket = TicketMapper.toEntity(request);
         ticket.setStatus(TicketStatus.OPEN);
+        ticket.setCategory(category);
 
         Ticket savedTicket = ticketRepository.save(ticket);
         return TicketMapper.toResponse(savedTicket);
@@ -42,10 +51,12 @@ public class TicketService {
 
     public TicketResponse updateTicket(Long id, TicketRequest request) {
         Ticket existingTicket = findTicketById(id);
+        Category category = categoryService.findCategoryById(request.getCategoryId());
 
         existingTicket.setTitle(request.getTitle());
         existingTicket.setDescription(request.getDescription());
         existingTicket.setAuthorEmail(request.getAuthorEmail());
+        existingTicket.setCategory(category);
 
         if (request.getStatus() != null) {
             existingTicket.setStatus(request.getStatus());

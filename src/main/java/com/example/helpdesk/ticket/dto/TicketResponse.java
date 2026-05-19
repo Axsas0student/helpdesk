@@ -3,6 +3,7 @@ package com.example.helpdesk.ticket.dto;
 import com.example.helpdesk.ticket.model.TicketStatus;
 
 import java.time.LocalDateTime;
+import com.example.helpdesk.category.dto.CategoryResponse;
 
 public class TicketResponse {
 
@@ -14,13 +15,17 @@ public class TicketResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    private CategoryResponse category;
+
     public TicketResponse(Long id, String title, String description, TicketStatus status,
-                          String authorEmail, LocalDateTime createdAt, LocalDateTime updatedAt) {
+                          String authorEmail, CategoryResponse category,
+                          LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.status = status;
         this.authorEmail = authorEmail;
+        this.category = category;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -51,5 +56,9 @@ public class TicketResponse {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public CategoryResponse getCategory() {
+        return category;
     }
 }

@@ -4,6 +4,7 @@ import com.example.helpdesk.ticket.model.TicketStatus;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.NotNull;
 
 public class TicketRequest {
 
@@ -18,6 +19,9 @@ public class TicketRequest {
     @NotBlank(message = "Adres e-mail autora jest wymagany")
     @Email(message = "Adres e-mail ma niepoprawny format")
     private String authorEmail;
+
+    @NotNull(message = "Kategoria zgłoszenia jest wymagana")
+    private Long categoryId;
 
     private TicketStatus status;
 
@@ -37,6 +41,10 @@ public class TicketRequest {
         return status;
     }
 
+    public Long getCategoryId() {
+        return categoryId;
+    }
+
     public void setTitle(String title) {
         this.title = title;
     }
@@ -51,5 +59,9 @@ public class TicketRequest {
 
     public void setStatus(TicketStatus status) {
         this.status = status;
+    }
+
+    public void setCategoryId(Long categoryId) {
+        this.categoryId = categoryId;
     }
 }

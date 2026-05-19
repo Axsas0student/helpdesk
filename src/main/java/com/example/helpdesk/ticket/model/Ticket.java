@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import com.example.helpdesk.category.model.Category;
 
 @Entity
 @Getter
@@ -24,6 +25,10 @@ public class Ticket {
     private TicketStatus status;
 
     private String authorEmail;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     private LocalDateTime createdAt;
 

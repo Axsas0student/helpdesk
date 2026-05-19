@@ -3,6 +3,7 @@ package com.example.helpdesk.ticket.mapper;
 import com.example.helpdesk.ticket.model.Ticket;
 import com.example.helpdesk.ticket.dto.TicketRequest;
 import com.example.helpdesk.ticket.dto.TicketResponse;
+import com.example.helpdesk.category.mapper.CategoryMapper;
 
 public class TicketMapper {
 
@@ -22,6 +23,7 @@ public class TicketMapper {
                 ticket.getDescription(),
                 ticket.getStatus(),
                 ticket.getAuthorEmail(),
+                ticket.getCategory() != null ? CategoryMapper.toResponse(ticket.getCategory()) : null,
                 ticket.getCreatedAt(),
                 ticket.getUpdatedAt()
         );
