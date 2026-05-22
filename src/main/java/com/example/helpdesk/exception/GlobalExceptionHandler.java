@@ -7,6 +7,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.dao.DataIntegrityViolationException;
+import com.example.helpdesk.exception.UserAlreadyExistsException;
+import org.springframework.security.authentication.BadCredentialsException;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
@@ -91,5 +93,29 @@ public class GlobalExceptionHandler {
         );
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+    }
+
+    @ExceptionHandler(UserAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleUserAlreadyExists(UserAlreadyExistsException exception) {
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.CONFLICT.value(),
+                exception.getMessage(),
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException exception) {
+        ErrorResponse response = new ErrorResponse(
+                LocalDateTime.now(),
+                HttpStatus.UNAUTHORIZED.value(),
+                "Nieprawidłowa nazwa użytkownika lub hasło",
+                null
+        );
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
     }
 }
