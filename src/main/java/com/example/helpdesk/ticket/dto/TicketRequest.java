@@ -1,7 +1,6 @@
 package com.example.helpdesk.ticket.dto;
 
 import com.example.helpdesk.ticket.model.TicketStatus;
-import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.NotNull;
@@ -16,10 +15,6 @@ public class TicketRequest {
     @Size(min = 10, max = 2000, message = "Opis musi mieć od 10 do 2000 znaków")
     private String description;
 
-    @NotBlank(message = "Adres e-mail autora jest wymagany")
-    @Email(message = "Adres e-mail ma niepoprawny format")
-    private String authorEmail;
-
     @NotNull(message = "Kategoria zgłoszenia jest wymagana")
     private Long categoryId;
 
@@ -31,10 +26,6 @@ public class TicketRequest {
 
     public String getDescription() {
         return description;
-    }
-
-    public String getAuthorEmail() {
-        return authorEmail;
     }
 
     public TicketStatus getStatus() {
@@ -51,10 +42,6 @@ public class TicketRequest {
 
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public void setAuthorEmail(String authorEmail) {
-        this.authorEmail = authorEmail;
     }
 
     public void setStatus(TicketStatus status) {

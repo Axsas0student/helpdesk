@@ -5,14 +5,20 @@ import com.example.helpdesk.category.service.CategoryService;
 import com.example.helpdesk.exception.TicketNotFoundException;
 import com.example.helpdesk.ticket.dto.TicketRequest;
 import com.example.helpdesk.ticket.dto.TicketResponse;
+import com.example.helpdesk.ticket.event.TicketCreatedEvent;
 import com.example.helpdesk.ticket.model.Ticket;
 import com.example.helpdesk.ticket.model.TicketStatus;
 import com.example.helpdesk.ticket.repository.TicketRepository;
+import com.example.helpdesk.user.model.AppRole;
+import com.example.helpdesk.user.model.AppUser;
+import com.example.helpdesk.user.repository.AppUserRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.security.core.Authentication;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -20,8 +26,6 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import org.springframework.context.ApplicationEventPublisher;
-import com.example.helpdesk.ticket.event.TicketCreatedEvent;
 
 @ExtendWith(MockitoExtension.class)
 class TicketServiceTest {
@@ -35,6 +39,9 @@ class TicketServiceTest {
     @Mock
     private ApplicationEventPublisher eventPublisher;
 
+    @Mock
+    private AppUserRepository appUserRepository;
+
     @InjectMocks
     private TicketService ticketService;
 
@@ -45,10 +52,18 @@ class TicketServiceTest {
         category.setName("Logowanie");
         category.setDescription("Problemy z logowaniem");
 
+        AppUser user = new AppUser();
+        user.setId(1L);
+        user.setUsername("user");
+        user.setEmail("user@example.com");
+        user.setPassword("encoded-password");
+        user.setRole(AppRole.USER);
+
+        Authentication authentication = mock(Authentication.class);
+
         TicketRequest request = new TicketRequest();
         request.setTitle("Problem z logowaniem");
         request.setDescription("Użytkownik nie może zalogować się do systemu.");
-        request.setAuthorEmail("user@example.com");
         request.setCategoryId(1L);
 
         Ticket savedTicket = new Ticket();
@@ -62,9 +77,11 @@ class TicketServiceTest {
         savedTicket.setUpdatedAt(LocalDateTime.now());
 
         when(categoryService.findCategoryById(1L)).thenReturn(category);
+        when(authentication.getName()).thenReturn("user");
+        when(appUserRepository.findByUsername("user")).thenReturn(Optional.of(user));
         when(ticketRepository.save(any(Ticket.class))).thenReturn(savedTicket);
 
-        TicketResponse response = ticketService.createTicket(request);
+        TicketResponse response = ticketService.createTicket(request, authentication);
 
         assertEquals(1L, response.getId());
         assertEquals("Problem z logowaniem", response.getTitle());
@@ -74,6 +91,8 @@ class TicketServiceTest {
         assertEquals("Logowanie", response.getCategory().getName());
 
         verify(categoryService).findCategoryById(1L);
+        verify(authentication).getName();
+        verify(appUserRepository).findByUsername("user");
         verify(ticketRepository).save(any(Ticket.class));
         verify(eventPublisher).publishEvent(any(TicketCreatedEvent.class));
     }
@@ -180,7 +199,6 @@ class TicketServiceTest {
         TicketRequest request = new TicketRequest();
         request.setTitle("Nowy tytuł");
         request.setDescription("Nowy opis zgłoszenia.");
-        request.setAuthorEmail("new@example.com");
         request.setStatus(TicketStatus.IN_PROGRESS);
         request.setCategoryId(2L);
 
@@ -188,7 +206,7 @@ class TicketServiceTest {
         savedTicket.setId(1L);
         savedTicket.setTitle("Nowy tytuł");
         savedTicket.setDescription("Nowy opis zgłoszenia.");
-        savedTicket.setAuthorEmail("new@example.com");
+        savedTicket.setAuthorEmail("old@example.com");
         savedTicket.setStatus(TicketStatus.IN_PROGRESS);
         savedTicket.setCategory(newCategory);
         savedTicket.setCreatedAt(existingTicket.getCreatedAt());
@@ -202,7 +220,7 @@ class TicketServiceTest {
 
         assertEquals("Nowy tytuł", response.getTitle());
         assertEquals("Nowy opis zgłoszenia.", response.getDescription());
-        assertEquals("new@example.com", response.getAuthorEmail());
+        assertEquals("old@example.com", response.getAuthorEmail());
         assertEquals(TicketStatus.IN_PROGRESS, response.getStatus());
         assertEquals("Sprzęt", response.getCategory().getName());
 

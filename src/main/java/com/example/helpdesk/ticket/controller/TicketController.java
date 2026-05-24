@@ -5,6 +5,8 @@ import com.example.helpdesk.ticket.dto.TicketResponse;
 import com.example.helpdesk.ticket.service.TicketService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+import com.example.helpdesk.ticket.dto.TicketStatusRequest;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 
@@ -23,14 +25,19 @@ public class TicketController {
         return ticketService.getAllTickets();
     }
 
+    @GetMapping("/my")
+    public List<TicketResponse> getMyTickets(Authentication authentication) {
+        return ticketService.getMyTickets(authentication);
+    }
+
     @GetMapping("/{id}")
     public TicketResponse getTicketById(@PathVariable Long id) {
         return ticketService.getTicketById(id);
     }
 
     @PostMapping
-    public TicketResponse createTicket(@Valid @RequestBody TicketRequest request) {
-        return ticketService.createTicket(request);
+    public TicketResponse createTicket(@Valid @RequestBody TicketRequest request, Authentication authentication) {
+        return ticketService.createTicket(request, authentication);
     }
 
     @PutMapping("/{id}")
@@ -41,5 +48,10 @@ public class TicketController {
     @DeleteMapping("/{id}")
     public void deleteTicket(@PathVariable Long id) {
         ticketService.deleteTicket(id);
+    }
+
+    @PatchMapping("/{id}/status")
+    public TicketResponse updateTicketStatus(@PathVariable Long id, @Valid @RequestBody TicketStatusRequest request) {
+        return ticketService.updateTicketStatus(id, request);
     }
 }

@@ -11,7 +11,6 @@ public class TicketMapper {
         Ticket ticket = new Ticket();
         ticket.setTitle(request.getTitle());
         ticket.setDescription(request.getDescription());
-        ticket.setAuthorEmail(request.getAuthorEmail());
         ticket.setStatus(request.getStatus());
         return ticket;
     }
