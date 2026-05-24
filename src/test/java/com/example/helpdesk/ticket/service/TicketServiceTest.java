@@ -20,6 +20,8 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import org.springframework.context.ApplicationEventPublisher;
+import com.example.helpdesk.ticket.event.TicketCreatedEvent;
 
 @ExtendWith(MockitoExtension.class)
 class TicketServiceTest {
@@ -29,6 +31,9 @@ class TicketServiceTest {
 
     @Mock
     private CategoryService categoryService;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private TicketService ticketService;
@@ -70,6 +75,7 @@ class TicketServiceTest {
 
         verify(categoryService).findCategoryById(1L);
         verify(ticketRepository).save(any(Ticket.class));
+        verify(eventPublisher).publishEvent(any(TicketCreatedEvent.class));
     }
 
     @Test

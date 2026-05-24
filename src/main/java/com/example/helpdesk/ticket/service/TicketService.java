@@ -13,6 +13,8 @@ import java.util.List;
 
 import com.example.helpdesk.category.model.Category;
 import com.example.helpdesk.category.service.CategoryService;
+import com.example.helpdesk.ticket.event.TicketCreatedEvent;
+import org.springframework.context.ApplicationEventPublisher;
 
 @Service
 public class TicketService {
@@ -21,9 +23,14 @@ public class TicketService {
 
     private final CategoryService categoryService;
 
-    public TicketService(TicketRepository ticketRepository, CategoryService categoryService) {
+    private final ApplicationEventPublisher eventPublisher;
+
+    public TicketService(TicketRepository ticketRepository,
+                         CategoryService categoryService,
+                         ApplicationEventPublisher eventPublisher) {
         this.ticketRepository = ticketRepository;
         this.categoryService = categoryService;
+        this.eventPublisher = eventPublisher;
     }
 
     public List<TicketResponse> getAllTickets() {
@@ -46,6 +53,9 @@ public class TicketService {
         ticket.setCategory(category);
 
         Ticket savedTicket = ticketRepository.save(ticket);
+
+        eventPublisher.publishEvent(new TicketCreatedEvent(savedTicket));
+
         return TicketMapper.toResponse(savedTicket);
     }
 
