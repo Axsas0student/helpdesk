@@ -1,0 +1,132 @@
+<div class="page">
+  <header class="header">
+    <div>
+      <h1>Helpdesk</h1>
+      <p>System zgłoszeń serwisowych</p>
+    </div>
+
+    <div *ngIf="token" class="user-box">
+      <span>Zalogowany: <strong>{{ loggedUsername }}</strong> ({{ loggedRole }})</span>
+      <button (click)="logout()">Wyloguj</button>
+    </div>
+  </header>
+
+  <section *ngIf="!token" class="card auth-card">
+    <h2>Logowanie</h2>
+
+    <label>Nazwa użytkownika</label>
+    <input [(ngModel)]="loginUsername" />
+
+    <label>Hasło</label>
+    <input [(ngModel)]="loginPassword" type="password" />
+
+    <button (click)="login()">Zaloguj</button>
+
+    <p class="message">{{ loginMessage }}</p>
+
+    <hr />
+
+    <h2>Rejestracja</h2>
+
+    <label>Nazwa użytkownika</label>
+    <input [(ngModel)]="registerUsername" />
+
+    <label>Hasło</label>
+    <input [(ngModel)]="registerPassword" type="password" />
+
+    <label>E-mail</label>
+    <input [(ngModel)]="registerEmail" placeholder="user@example.com" />
+
+    <label>Rola</label>
+    <select [(ngModel)]="registerRole">
+      <option value="USER">USER</option>
+      <option value="ADMIN">ADMIN</option>
+    </select>
+
+    <button (click)="register()">Zarejestruj</button>
+
+    <p class="message">{{ registerMessage }}</p>
+  </section>
+
+  <main *ngIf="token" class="grid">
+    <section class="card">
+      <h2>Kategorie</h2>
+
+      <div *ngIf="loggedRole === 'ADMIN'" class="form">
+        <h3>Dodaj kategorię</h3>
+
+        <label>Nazwa</label>
+        <input [(ngModel)]="categoryName" placeholder="Nazwa kategorii" />
+
+        <label>Opis</label>
+        <textarea [(ngModel)]="categoryDescription" placeholder="Opis kategorii"></textarea>
+
+        <button (click)="createCategory()">Dodaj kategorię</button>
+      </div>
+
+      <ul class="list">
+        <li *ngFor="let category of categories">
+          <strong>{{ category.name }}</strong>
+          <span>{{ category.description }}</span>
+        </li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Nowe zgłoszenie</h2>
+
+      <label>Tytuł</label>
+      <input [(ngModel)]="ticketTitle" placeholder="Tytuł zgłoszenia" />
+
+      <label>Opis</label>
+      <textarea [(ngModel)]="ticketDescription" placeholder="Opisz problem"></textarea>
+
+      <label>Kategoria</label>
+      <select [(ngModel)]="ticketCategoryId">
+        <option [ngValue]="null">Wybierz kategorię</option>
+        <option *ngFor="let category of categories" [ngValue]="category.id">
+          {{ category.name }}
+        </option>
+      </select>
+
+      <button (click)="createTicket()">Dodaj zgłoszenie</button>
+    </section>
+
+    <section class="card full">
+      <h2>Lista zgłoszeń</h2>
+
+      <table>
+        <thead>
+        <tr>
+          <th>ID</th>
+          <th>Tytuł</th>
+          <th>Opis</th>
+          <th>Status</th>
+          <th>Kategoria</th>
+          <th>Autor</th>
+          <th *ngIf="loggedRole === 'ADMIN'">Zmień status</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr *ngFor="let ticket of tickets">
+          <td>{{ ticket.id }}</td>
+          <td>{{ ticket.title }}</td>
+          <td>{{ ticket.description }}</td>
+          <td>{{ ticket.status }}</td>
+          <td>{{ ticket.category.name }}</td>
+          <td>{{ ticket.authorEmail }}</td>
+          <td *ngIf="loggedRole === 'ADMIN'">
+            <select [ngModel]="ticket.status" (ngModelChange)="updateTicketStatus(ticket, $event)">
+              <option value="OPEN">OPEN</option>
+              <option value="IN_PROGRESS">IN_PROGRESS</option>
+              <option value="RESOLVED">RESOLVED</option>
+              <option value="CLOSED">CLOSED</option>
+            </select>
+          </td>
+        </tr>
+        </tbody>
+      </table>
+    </section>
+  </main>
+</div>
